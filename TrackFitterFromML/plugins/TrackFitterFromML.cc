@@ -92,7 +92,7 @@ TrackFitterFromML::TrackFitterFromML(const edm::ParameterSet& iConfig)
       trackingRegionToken(consumes<GlobalTrackingRegion>(iConfig.getParameter<edm::InputTag>("trackingRegion"))), 
       ttTrackBuilderToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("ttRecHitBuilder")))),
       trackPropagator(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("propagator")))),
-      trackPropagatorOppositeToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("propagator")))),
+      trackPropagatorOppositeToken(esConsumes(edm::ESInputTag("", iConfig.getParameter<std::string>("oppositePropagator")))),
       trackerGeometryToken(esConsumes()),
       fieldToken(esConsumes()) 
 {
@@ -132,13 +132,14 @@ void TrackFitterFromML::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                                     &iSetup.getData(fieldToken),
                                     hBeamSpot.product());  
 
-    GlobalTrackingRegion trackingRegion = iEvent.get(trackingRegionToken); //const TrackingRegion *trackingRegion = static_cast<const TrackingRegion*>(&iEvent.get(trackingRegionToken)); // TODO: define a tracking region 
+    GlobalTrackingRegion trackingRegion = iEvent.get(trackingRegionToken); // TODO: define a tracking region 
 
 
     for (auto recHits : mlProtoTracks) 
     {
+        assert(fitter); 
         // For each collection of RecHits provided by the DNN, aka protoTrack, we perform a Kalman Fit 
-        tracks->push_back(*fitter->run(recHits, trackingRegion, iSetup)); 
+        tracks->push_back(*fitter->run(recHits, trackingRegion, iSetup)); //TODO: in version 12, the setup is no longer required 
     }
 
     iEvent.put(trackPutToken, std::move(tracks)); 
@@ -196,11 +197,11 @@ void TrackFitterFromML::fillDescriptions(edm::ConfigurationDescriptions& descrip
     //The following says we do not know what parameters are allowed so do no validation
     // Please change this to state exactly what you do use, even if it is no parameters
     edm::ParameterSetDescription desc;
-    desc.add<edm::InputTag>("propagator", edm::InputTag("PropagatorWithMaterial"));
-    desc.add<edm::InputTag>("oppositePropagator", edm::InputTag("PropagatorWithMaterialOpposite")); 
-    desc.add<edm::InputTag>("ttRecHitBuilder", edm::InputTag("PixelTTRHBuilderWithoutAngle")); 
-    desc.add<edm::InputTag>("trackerGeometry", edm::InputTag("pixelVertexSoA"));  
-    desc.add<edm::InputTag>("magneticField", edm::InputTag("GlobalTrackingRegionFromBeamSpotEDProducer")); 
+    desc.add<std::string>("propagator", "PropagatorWithMaterial");
+    desc.add<std::string>("oppositePropagator", "PropagatorWithMaterialOpposite"); 
+    desc.add<std::string>("ttRecHitBuilder", "PixelTTRHBuilderWithoutAngle"); 
+    //desc.add<edm::InputTag>("trackerGeometry", edm::InputTag("pixelVertexSoA"));  
+    //desc.add<edm::InputTag>("magneticField", edm::InputTag("GlobalTrackingRegionFromBeamSpotEDProducer")); 
     desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));  
     desc.add<edm::InputTag>("trackingRegion", edm::InputTag("GlobalTrackingRegionFromBeamSpotEDProducer")); 
     auto label = "TrackFitterML"; // Is this the name to access the collection? 
