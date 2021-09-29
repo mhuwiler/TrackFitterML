@@ -33,22 +33,24 @@ oppositePropagator = cms.ESProducer("PropagatorWithMaterialESProducer", # taken 
 
 globalTrackingRegionFromBeamspot = cms.EDProducer( "GlobalTrackingRegionFromBeamSpotEDProducer", # TODO: import and clone 
     RegionPSet = cms.PSet( 
-      nSigmaZ = cms.double( 4.0 ), #TODO: tune 
-      beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
-      ptMin = cms.double( 0.1 ), # match threshold from ML 
-      originRadius = cms.double( 0.02 ), #TODO: tune
-      precise = cms.bool( True )
+        nSigmaZ = cms.double( 4.0 ), #TODO: tune 
+        beamSpot = cms.InputTag( "hltOnlineBeamSpot" ),
+        ptMin = cms.double( 0.1 ), # match threshold from ML 
+        originRadius = cms.double( 0.02 ), #TODO: tune
+        precise = cms.bool( True )
     )
 )
 
 trackCollectionKFfromML = cms.EDProducer ("TrackFitterFromML", 
-	propagator = cms.string("PropagatorWithMaterial"), 
-	oppositePropagator = cms.string("PropagatorWithMaterialOpposite"), 
-	ttRecHitBuilder = cms.string("PixelTTRHBuilderWithoutAngle"), 
-	#trackerGeometry = cms.InputTag(""),   
-	#magneticField = cms.InputTag(""), 
-	beamSpot = cms.InputTag("offlineBeamSpot"), 
-	trackingRegion = cms.InputTag("GlobalTrackingRegionFromBeamSpotEDProducer")
+    propagator = cms.string("PropagatorWithMaterial"), 
+    oppositePropagator = cms.string("PropagatorWithMaterialOpposite"), 
+    ttRecHitBuilder = cms.string("PixelTTRHBuilderWithoutAngle"), 
+    #trackerGeometry = cms.InputTag(""),   
+    #magneticField = cms.InputTag(""), 
+    beamSpot = cms.InputTag("offlineBeamSpot"), 
+    trackingRegion = cms.InputTag("GlobalTrackingRegionFromBeamSpotEDProducer"), 
+    doTest = cms.bool(False), 
+    trakcs = cms.InputTag("generalTracks")
 )
 
 
